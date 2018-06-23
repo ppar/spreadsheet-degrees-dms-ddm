@@ -1,12 +1,23 @@
-.PHONY: README.md demo.csv debug.csv
+TARGETS = README.md formulas-ascii.md demo-ascii.csv demo-unicode.csv debug-ascii.csv debug-unicode.csv
 
-all: README.md demo.csv debug.csv
+.PHONY: $(TARGETS)
+
+all: $(TARGETS)
 
 README.md:
-	python compile.py -readme > README.md
+	python compile.py README.md > README.md
 
-demo.csv:
-	python compile.py -csv > demo.csv
+formulas-ascii.md:
+	python compile.py formulas-ascii.md > formulas-ascii.md
 
-debug.csv:
-	python compile.py -csv-debug > debug.csv
+demo-ascii.csv:
+	python compile.py demo-ascii.csv > demo-ascii.csv
+
+demo-unicode.csv:
+	python compile.py demo-unicode.csv > demo-unicode.csv
+
+debug-ascii.csv:
+	python compile.py debug-ascii.csv > debug-ascii.csv
+
+debug-unicode.csv:
+	python compile.py debug-unicode.csv > debug-unicode.csv

@@ -239,7 +239,7 @@ Included for completeness, not necessarily useful.
 
 # CSV document
 TEXT_DEMO_CSV = \
-'''Decimal_degr,Min_rounding,Sec_rounding,CMP_DDM_Round,CMP_DMS_Int,CMP,DMS_Round,${csv_head}
+'''Decimal_degr,Min_rounding,Sec_rounding,CMP_DDM_Round,CMP_DMS_Int,CMP,${csv_head}
 -10.123,4,4,"-10d 7.3800m","-10d 7m 22s","-10d 7m 22.8000s",${csv_line}
 
 '''

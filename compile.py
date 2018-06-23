@@ -27,11 +27,16 @@ TEMPLATE_CHARS_ASCII = {
 }
 
 TEMPLATE_FORMULAS = {
-    # Inputs
+    # Inputs: deg => deg/min/sec
     "degrees_dec": '(A2)',
     "minutes_rounding": '(B2)',
     "seconds_rounding": '(C2)',
 
+    # Inpits: deg/min/sec => deg
+    "in_deg": '(D2)',
+    "in_min": '(E2)',
+    "in_sec": '(F2)',
+    
     # Conversions
     "degrees_int_abs": '(FLOOR(ABS(${degrees_dec});1))',
     "degrees_int": '(SIGN(${degrees_dec})*${degrees_int_abs})',
@@ -55,20 +60,22 @@ TEMPLATE_FORMULAS = {
     "seconds_dec_rounded": 'IF(${seconds_rounding} > 0; CONCATENATE(${seconds_int}; ${chr_comma}; ${seconds_decimals_padding}; ${seconds_decimals_raw}); ${seconds_int})',
 
     # Final formulas
-    "form_ddm_rounded":   'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_dec_rounded}; ${chr_min})',
-    "form_ddm_unrounded": 'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_dec}; ${chr_min})',
-    "form_ddm_int":       'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min})',
+    "form_deg2ddm_rounded":   'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_dec_rounded}; ${chr_min})',
+    "form_deg2ddm_unrounded": 'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_dec}; ${chr_min})',
+    "form_deg2ddm_int":       'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min})',
 
-    "form_dms_rounded":   'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min}; ${chr_space}; ${seconds_dec_rounded}; ${chr_sec})',
-    "form_dms_unrounded": 'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min}; ${chr_space}; ${seconds_dec}; ${chr_sec})',
-    "form_dms_int":       'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min}; ${chr_space}; ${seconds_int}; ${chr_sec})',
+    "form_deg2dms_rounded":   'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min}; ${chr_space}; ${seconds_dec_rounded}; ${chr_sec})',
+    "form_deg2dms_unrounded": 'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min}; ${chr_space}; ${seconds_dec}; ${chr_sec})',
+    "form_deg2dms_int":       'CONCATENATE(${degrees_int}; ${chr_degree}; ${chr_space}; ${minutes_int}; ${chr_min}; ${chr_space}; ${seconds_int}; ${chr_sec})',
 
+    "form_dms2deg":           '(${in_deg} + (60*${in_min}) + (3600*${in_sec}))',
+    
     # Helpers for the CSV templates
-    "csv_line":           '"=${form_ddm_rounded}","=${form_ddm_unrounded}","=${form_ddm_int}","=${form_dms_rounded}","=${form_dms_unrounded}","=${form_dms_int}"',
+    "csv_line":           '"=${form_deg2ddm_rounded}","=${form_deg2ddm_unrounded}","=${form_deg2ddm_int}","=${form_deg2dms_rounded}","=${form_deg2dms_unrounded}","=${form_deg2dms_int}"',
     "csv_head":           'DDM_Round,DDM_URound,DDM_Int,DMS_Round,DMS_URound,DMS_Int',
     
     "csv_debug_head":     'DDM_Round,DDM_URound,DDM_Int,DMS_Round,DMS_URound,DMS_Int,degrees_int,chr_degree,chr_space,minutes_int,chr_min,chr_space,seconds_dec_rounded,chr_sec,seconds_rounding,seconds_int,chr_comma,seconds_decimals_padding,seconds_decimals_raw,seconds_decimals_padding_len',
-    "csv_debug_line":     '"=${form_ddm_rounded}","=${form_ddm_unrounded}","=${form_ddm_int}","=${form_dms_rounded}","=${form_dms_unrounded}","=${form_dms_int}","=${degrees_int}","=${chr_degree}","=${chr_space}","=${minutes_int}","=${chr_min}","=${chr_space}","=${seconds_dec_rounded}","=${chr_sec}","=${seconds_rounding}","=${seconds_int}","=${chr_comma}","=${seconds_decimals_padding}","=${seconds_decimals_raw}","=${seconds_decimals_padding_len}"'
+    "csv_debug_line":     '"=${form_deg2ddm_rounded}","=${form_deg2ddm_unrounded}","=${form_deg2ddm_int}","=${form_deg2dms_rounded}","=${form_deg2dms_unrounded}","=${form_deg2dms_int}","=${degrees_int}","=${chr_degree}","=${chr_space}","=${minutes_int}","=${chr_min}","=${chr_space}","=${seconds_dec_rounded}","=${chr_sec}","=${seconds_rounding}","=${seconds_int}","=${chr_comma}","=${seconds_decimals_padding}","=${seconds_decimals_raw}","=${seconds_decimals_padding_len}"',
 }
 
 # README.md document
@@ -86,7 +93,8 @@ Background: [https://en.wikipedia.org/wiki/Geographic coordinate conversion](htt
 ## Usage
 
 Simply copy and paste the formulas from below, or use the `demo.csv` file, or use `./compile.py` 
-to roll your own. Modify the input cells as necessary.
+to roll your own. Modify the input cells as necessary. Each formula is self-contained and only
+depends on (one or more of) the input fields.
 
 The formulas use three input cells (`${degrees_dec}`, `${minutes_rounding}` and  `${seconds_rounding}`) 
 for the decimal degrees, number of decimals in the  produced minutes and seconds, respectively
@@ -102,10 +110,12 @@ The CSV files are generated with ASCII formatting, while the README.md uses UNIC
 for the degree sign and non-breaking space. 
 
 ## Bugs
-The `form_dms_rounded` formula causes a "Formula overflow" error in OpenOffice.org 4.1.5
+The `form_deg2dms_rounded` formula causes a "Formula overflow" error in OpenOffice.org 4.1.5
 
-## Formulas
+## Formulas (degrees to fractions)
 ### Inputs
+
+For decimal degrees => fractions conversion:
 
 - Decimal degrees: `${degrees_dec}`
 - Nr. of decimals to round minutes to: `${minutes_rounding}`
@@ -113,35 +123,92 @@ The `form_dms_rounded` formula causes a "Formula overflow" error in OpenOffice.o
 
 ### Rounded values
 
-####  Decimal degrees to DDM (Degrees, Decimal Minutes) with rounded minutes
+#### (string) Decimal degrees to DDM (Degrees, Decimal Minutes) with rounded minutes
 - (-10,123&deg;, 3, 3) => -10&deg;7.380"
 
-`${form_ddm_rounded}`
+_Returns a string representing the decimal degrees in `${degrees_dec}` in DDM format, minutes rounded to `${minutes_rounding}` digits_
+
+`${form_deg2ddm_rounded}`
 
 
-####  Decimal degrees to DMS (Degrees, Minutes, Seconds) with integer seconds
+#### (string) Decimal degrees to DMS (Degrees, Minutes, Seconds) with integer seconds
 - (-10,123&deg;, 3, 3) => -10&deg; 7" 22'
 
-`${form_dms_int}`
+_Returns a string representing the decimal degrees in `${degrees_dec}` in DMS format, seconds truncated to their integer value_
 
-####  Decimal degrees to DMS (Degrees, Minutes, Seconds) with rounded seconds
+`${form_deg2dms_int}`
+
+#### (string) Decimal degrees to DMS (Degrees, Minutes, Seconds) with rounded seconds
 - (-10,123&deg;, 3, 3) => -10&deg; 7" 22.800'
 
-`${form_dms_rounded}`
+_Returns a string representing the decimal degrees in `${degrees_dec}` in DMS format, seconds rounded to `${seconds_rounding}` digits_
+
+`${form_deg2dms_rounded}`
+
+### Components
+#### DDM
+##### (number) Degrees (int):
+
+_Returns a number representing the integer degree component of the decimal degree value in `${degrees_dec}`_
+
+`${degrees_int}`
+
+##### (number) Minutes (dec):
+
+_Returns a number representing the decimal minute component of the decimal degree value in `${degrees_dec}`_
+
+`(SIGN(${degrees_dec})*${minutes_dec})`
+
+#### DMS 
+##### (number) Degrees (int):
+
+_Returns a number representing the integer degree component of the decimal degree value in `${degrees_dec}`_
+
+`${degrees_int}`
+
+##### (number) Minutes (int):
+
+_Returns a number representing the integer minute component of the decimal degree value in `${degrees_dec}`_
+
+`(SIGN(${degrees_dec})*${minutes_int})`
+
+##### (number) Seconds (dec):
+
+_Returns a number representing the decimal seconds component of the decimal degree value in `${degrees_dec}`_
+
+`(SIGN(${degrees_dec})*${seconds_dec})`
 
 ### Unrounded / raw values
 
-####  Decimal degrees to DDM (Degrees, Decimal Minutes) with unrounded minutes
-`${form_ddm_unrounded}`
+#### (string) Decimal degrees to DDM (Degrees, Decimal Minutes) with unrounded minutes
+`${form_deg2ddm_unrounded}`
 
-####  Decimal degrees to DDM (Degrees, Decimal Minutes) with integer minutes (NOTE: loss of precision)
-`${form_ddm_int}`
+#### (string) Decimal degrees to DDM (Degrees, Decimal Minutes) with integer minutes 
 
-####  Decimal degrees to DMS (Degrees, Minutes, Seconds) with unrounded decimal seconds
-`${form_dms_unrounded}`
+- NOTE: loss of precision
 
-####  Decimal degrees to DMS (Degrees, Minutes, Seconds) with integer seconds (NOTE: loss of precision)
-`${form_dms_int}`
+`${form_deg2ddm_int}`
+
+#### (string) Decimal degrees to DMS (Degrees, Minutes, Seconds) with unrounded decimal seconds
+`${form_deg2dms_unrounded}`
+
+#### (string) Decimal degrees to DMS (Degrees, Minutes, Seconds) with integer seconds 
+
+- NOTE: loss of precision
+
+`${form_deg2dms_int}`
+
+## Formulas (fractions to degrees)
+### Inputs
+
+- Degrees: `${in_deg}`
+- Minutes: `${in_min}`
+- Seconds: `${in_sec}`
+
+
+### (number) Decimal degrees
+`${form_dms2deg}`
+
 '''
 
 # CSV document
